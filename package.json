@@ -1,0 +1,24 @@
+{
+  "name": "movies-api",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/chalk": "^0.4.31",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.14",
+    "dotenv": "^16.5.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
