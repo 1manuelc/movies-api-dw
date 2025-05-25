@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
 import express from 'express';
 import chalk from 'chalk';
 import moviesRouter from './routes/movies-routes';
+import env from './config/env';
+import { sequelize } from './config/db';
 
-dotenv.config();
-const PORT = process.env.API_PORT || 3000;
+const PORT = env.API_PORT || 3000;
 
 const app = express();
 app.use(express.json());
@@ -18,10 +18,19 @@ apiRouter.get('/', (_, res) => {
 
 apiRouter.use('/movies', moviesRouter);
 
-app.listen(PORT, () => {
-	console.log(
-		`🎬 Action! Server running at ${chalk.blue(
-			'http://localhost:' + PORT + '/api'
-		)}`
-	);
-});
+const start = async () => {
+	try {
+		await sequelize.sync();
+		app.listen(PORT, () => {
+			console.log(
+				`🎬 Action! Server running at ${chalk.blue(
+					'http://localhost:' + PORT + '/api'
+				)}`
+			);
+		});
+	} catch (error: unknown) {
+		console.error('Error while starting:', error as Error);
+	}
+};
+
+start();
