@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { MovieService } from '../service/MoviesService';
-import { MovieModel } from '../model/MovieModel';
+import { MovieModel } from '../@types/movie';
 
-const movieService = new MovieService({ useMock: true });
+const movieService = new MovieService();
 
 interface QueryFilters {
 	title?: string;
@@ -24,7 +24,7 @@ function applyQueryFilters(
 	}
 
 	if (year) {
-		result = result.filter((movie) => movie.releaseYear === Number(year));
+		result = result.filter((movie) => movie.release_year === Number(year));
 	}
 
 	if (genre) {
@@ -36,91 +36,79 @@ function applyQueryFilters(
 	return result;
 }
 
-const getMovies = (req: Request, res: Response) => {
-	try {
-		let result = movieService.getAll();
-
-		if (result.length === 0) {
-			throw new Error('No movies registered');
-		}
-
-		res.json(result);
-	} catch (error) {
-		if (error instanceof Error) res.status(404).json({ error: error.message });
+const getMovies = async (req: Request, res: Response) => {
+	let result = await movieService.getAll();
+	if (result.length === 0) {
+		return res.status(404).json({ message: 'No movies found' });
 	}
+
+	res.status(200).json(result);
 };
 
-const createMovie = (req: Request, res: Response) => {
+const createMovie = async (req: Request, res: Response) => {
 	const newMovie = req.body;
-
 	if (!newMovie) {
-		throw new Error('Invalid movie information provided');
+		res.status(404).json({ error: 'Invalid movie information provided' });
 	}
 
-	const result = movieService.create(newMovie);
+	const result = await movieService.create(newMovie);
 	if (!result) {
-		throw new Error('Error creating movie');
+		res.status(404).json({ error: 'Error creating movie' });
 	}
 
-	res.json(result);
+	res.status(201).json(result);
 };
 
-const getMoviesCount = (req: Request, res: Response) => {
-	let result = movieService.getAll();
-	result = applyQueryFilters(result, req.query);
-	res.json({ count: result.length });
+const getMoviesCount = async (req: Request, res: Response) => {
+	let result = await movieService.getAll();
+	const filteredResults = applyQueryFilters(result, req.query);
+	res.json({ count: filteredResults.length });
 };
 
-const getMovieById = (req: Request, res: Response) => {
-	try {
-		const id = Number(req.params.id);
-		const result = movieService.getById(id);
-
-		if (!id) {
-			throw new Error(`Movie id not valid`);
-		}
-
-		res.json(result);
-	} catch (error) {
-		if (error instanceof Error) res.status(404).json({ error: error.message });
+const getMovieById = async (req: Request, res: Response) => {
+	const id = Number(req.params.id);
+	if (!id) {
+		return res.status(404).json({ error: 'Invalid id provided' });
 	}
+
+	const result = await movieService.getById(id);
+	if (!result) {
+		return res.status(404).json({ error: `Movie of id ${id} not found` });
+	}
+
+	res.status(200).json(result);
+};
+const patchMovieById = async (req: Request, res: Response) => {
+	let { id } = req.params;
+	if (!Number(id)) {
+		res.status(404).json({ error: 'Movie id not valid' });
+	}
+
+	const newMovie = req.body;
+	if (!newMovie) {
+		res.status(404).json({ error: 'Invalid movie information provided' });
+	}
+
+	const result = await movieService.update({ id: Number(id), newMovie });
+	if (!result) {
+		return res.status(404).json({ error: `Movie of id ${id} not found` });
+	}
+
+	res.status(200).json(result);
 };
 
-const patchMovieById = (req: Request, res: Response) => {
-	try {
-		const newMovie = req.body;
-		let { id } = req.params;
-
-		if (!Number(id)) {
-			throw new Error(`Movie id not valid`);
-		}
-
-		if (!newMovie) {
-			throw new Error('Invalid movie information provided');
-		}
-
-		const result = movieService.update({ id: Number(id), newMovie });
-
-		res.json(result);
-	} catch (error) {
-		if (error instanceof Error) res.status(404).json({ error: error.message });
+const deleteMovieById = async (req: Request, res: Response) => {
+	let { id } = req.params;
+	if (!Number(id)) {
+		res.status(404).json({ error: 'Movie id not valid' });
 	}
-};
 
-const deleteMovieById = (req: Request, res: Response) => {
-	try {
-		let { id } = req.params;
-
-		if (!Number(id)) {
-			throw new Error(`Movie id not valid`);
-		}
-
-		const result = movieService.remove(Number(id));
-
-		res.json(result);
-	} catch (error) {
-		if (error instanceof Error) res.status(404).json({ error: error.message });
+	const result = await movieService.remove(Number(id));
+	if (!result) {
+		return res.status(404).json({ error: `Movie of id ${id} not found` });
 	}
+
+	res.status(204).json(result);
 };
 
 const MoviesController = {
