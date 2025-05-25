@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "tsx --watch src/index.ts",
+    "dev": "mysql -u root < ./sql/init.sql && tsx --watch src/index.ts",
+    "mock": "mysql -u root < ./sql/mock.sql",
+    "reset-ids": "mysql -u root < ./sql/reset-ids.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -11,7 +13,11 @@
   "description": "",
   "dependencies": {
     "chalk": "^5.4.1",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.7",
+    "sequelize-typescript": "^2.1.6"
   },
   "devDependencies": {
     "@types/chalk": "^0.4.31",
