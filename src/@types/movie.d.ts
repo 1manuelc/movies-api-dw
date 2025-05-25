@@ -5,6 +5,6 @@ export type MovieModel = {
 	genre: string;
 	rating: number;
 	director: string;
-	releaseYear: number;
-	durationInSeconds: number;
+	release_year: number;
+	duration_in_secs: number;
 };
