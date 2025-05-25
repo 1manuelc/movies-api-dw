@@ -1,0 +1,14 @@
+CREATE DATABASE IF NOT EXISTS MoviesDB;
+USE MoviesDB;
+
+CREATE TABLE IF NOT EXISTS Movies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  description VARCHAR(500) NOT NULL,
+  genre VARCHAR(100) NOT NULL,
+  rating INT NOT NULL,
+  director VARCHAR(100) NOT NULL,
+  release_year INT NOT NULL,
+  duration_in_secs INT NOT NULL
+);
+
